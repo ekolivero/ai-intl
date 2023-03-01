@@ -10,9 +10,16 @@ import { translate } from "../utils/translate.js";
 export default command(
   {
     name: "translate",
-    parameters: [],
+    parameters: ["[prompt...]"],
   },
   async (argv) => {
+    const customPrompt =
+      argv._.prompt.length > 0
+        ? argv._.prompt.reduce((acc, curr) => {
+            return `${acc} ${curr}`;
+          })
+        : undefined;
+
     const { defaultLocale } = (await readConfigFile(aiIntlFileName)) as Config;
     const missingTranslations = await findNewTranslationsFile();
 
@@ -57,6 +64,7 @@ export default command(
                 locale,
                 defaultLocale,
                 task: nestedTask,
+                customPrompt,
               });
             }
           )

@@ -33,6 +33,10 @@ cli(
         type: String,
         description: "OpenAI API Key",
       },
+      prompt: {
+        type: String,
+        description: "Custom prompt to use for the translation",
+      },
     },
 
     commands: [configCommand, hookCommand, translateCli, generateCommand],
