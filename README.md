@@ -1,6 +1,6 @@
 <div align="center">
   <div>
-    <img src=".github/show.gif" alt="AI Commits"/>
+    <img src=".github/AI-INTL.gif" alt="AI Commits"/>
     <h1 align="center">AI-Intl</h1>
   </div>
 	<p>A CLI that manage your translations for you with AI 🚀</p>
