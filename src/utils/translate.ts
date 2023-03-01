@@ -21,6 +21,7 @@ type TranslateProps = {
   locale: string;
   defaultLocale: string;
   task: Task;
+  customPrompt?: string;
 };
 
 const combineTranslations = (original: any, generated: any) => {
@@ -96,6 +97,7 @@ export const translate = async ({
   locale,
   defaultLocale,
   task,
+  customPrompt,
 }: TranslateProps) => {
   return task(
     `Translating ${file.split("/").pop()}`,
@@ -138,9 +140,13 @@ export const translate = async ({
           diffGenerateTranslation
         );
       } else {
-        const prompt = `${promptTemplate(locale)}\n${sanitizeMessage(
-          JSON.stringify(jsonFile)
-        )}`;
+        const prompt = customPrompt
+          ? `${customPrompt.replace("{locale}", locale)}\n${sanitizeMessage(
+              JSON.stringify(jsonFile)
+            )}`
+          : `${promptTemplate(locale)}\n${sanitizeMessage(
+              JSON.stringify(jsonFile)
+            )}`;
         generatedJson = await callOpenAiAndParseResponse(prompt);
       }
 
