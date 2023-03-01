@@ -30,7 +30,6 @@
   "devDependencies": {
     "@types/json-diff": "^0.9.1",
     "@types/node": "^18.14.2",
-    "json-diff": "^1.0.3",
     "pkgroll": "^1.9.0",
     "typescript": "^4.9.5"
   },
@@ -46,6 +45,7 @@
     "fs-extra": "^11.1.0",
     "glob": "^8.1.0",
     "ini": "^3.0.1",
+    "json-diff": "^1.0.3",
     "kolorist": "^1.7.0",
     "openai": "^3.1.0",
     "tasuku": "^2.0.1"
