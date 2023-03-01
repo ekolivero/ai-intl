@@ -75,4 +75,4 @@ After finishing development, translation of content becomes a breeze with AI to 
 
 ### Used by
 
-- [jobtome](us.p3.jobtome.com)
+- [jobtome](https://us.p3.jobtome.com)
