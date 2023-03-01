@@ -79,11 +79,16 @@ You want to add internalization for your software
 ## Use cases:
 
 :white_check_mark: Building a website that supports multiple locales
+
+:white_check_mark: Focus on product opportunity and don't want to waste time dealing with json files
+
 :white_check_mark: Working on marketing materials
+
 :white_check_mark: Localizing social media platforms
+
 :white_check_mark: Running an e-commerce platform
+
 :white_check_mark: Adding internationalization to software
-:x: Work for a multi-million dollar company that has a flow for managing translations.
 
 ### Maintainers
 
