@@ -7,13 +7,19 @@
 	<a href="https://www.npmjs.com/package/ai-intl"><img src="https://img.shields.io/npm/v/ai-intl" alt="Current version"></a>
 </div>
 
----
+</br>
+
+> Language barriers have always been a major obstacle in the globalized world we live in. With businesses expanding overseas and people from different cultures interacting, the need for effective translation services has never been greater. However, traditional translation methods are often time-consuming, costly, and can still result in errors. That's where AI-Intl comes in
+
+## What is all about?
+
+Say goodbye to the complexities of internationalization with our AI-powered CLI application. This cutting-edge technology automates the process of translating and adapting your website for different cultures and languages, saving you time and effort.
 
 ## Setup
 
 > Please note that this project is currently under active development, so while it may not work 100% at this time, we are working diligently to improve it. Thank you for your patience and understanding.
 
-1. Install ai-intl:
+1. Install ai-intl CLI:
 
    ```sh
    npm install -g ai-intl
@@ -21,7 +27,7 @@
 
 2. Retrieve your API key from [OpenAI](https://platform.openai.com/account/api-keys)
 
-   > Note: If you haven't already, you'll have to create an account and set up billing.
+   > If you haven't already, you'll have to create an account and set up billing.
 
 3. Set the key so ai-intl can use it:
 
@@ -37,7 +43,9 @@
 
    ![ai-intl generate cli](.github/cli-demo.gif "ai-intl generate cli")
 
-5. You can now open _ai-intl.config.json_ and personalize your translations.
+5. Customize your translations
+
+   > Open _ai-intl.config.json_ that the CLI generated for you and customize your translations.
 
 6. _Optional_ if you want to run ai-intl pre-commit set up the hook.
 
@@ -47,25 +55,24 @@
 
    If you are using husky add <code>npx ai-intl</code> to the pre-commit hook.
 
-## What is all about?
-
-Say goodbye to the complexities of internationalization with our AI-powered CLI application. This cutting-edge technology automates the process of translating and adapting your website for different cultures and languages, saving you time and effort.
-
 ## How it works
 
 - CLI that generate for you translations on demand. Run <code>ai-intl translate</code> and it will translate the content for you.
 - If enabled, the pre-commit hook 🚀 will check for translation changes in your default locale and adapt all other translations for each pull request.
+- Custom prompts, you can customize your translations by using a _custom_ propmt, just type <code>ai-intl translate --prompt "your prompt" </code>
+
+## Issues
+
+- If you are facing any issue, please feel free to open a GitHub issue.
 
 ## Advantages
 
-Once you have finished your development, you no longer have to worry about translating the content. AI will take care of it for you.
-
-### A [jobtome](https://us.p3.jobtome.com/) project
+After finishing development, translation of content becomes a breeze with AI to take care of it all. With the added convenience of instant checks for corner cases such as right-to-left language or long words, you can rest easy knowing that your content is being handled with efficiency and care, leaving you with more time to focus on other important tasks
 
 ### Maintainers
 
 - **Erik Olivero**: [@ekolivero](https://github.com/erik18xk)
 
-### Thanks
+### Used by
 
-- This project was inspired by [ai-commits](https://github.com/Nutlope/aicommits)
+- [jobtome](us.p3.jobtome.com)
