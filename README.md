@@ -6,7 +6,8 @@
 	<p>A CLI that manage your translations for you with AI 🚀</p>
 	<a href="https://www.npmjs.com/package/ai-intl"><img src="https://img.shields.io/npm/v/ai-intl" alt="Current version"></a>
    </br>
-   <a href="https://www.producthunt.com/posts/ai-intl?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-ai&#0045;intl" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=381875&theme=neutral" alt="Ai&#0045;intl - CLI&#0032;that&#0032;manage&#0032;your&#0032;translations&#0032;for&#0032;you&#0032;🚀 | Product Hunt" style="width: 200px; height: 100px;" width="250" height="54" /></a>
+   <br/>
+   <a href="https://www.producthunt.com/posts/ai-intl?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-ai&#0045;intl" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=381875&theme=light" alt="Ai&#0045;intl - CLI&#0032;that&#0032;manage&#0032;your&#0032;translations&#0032;for&#0032;you&#0032;🚀 | Product Hunt" style="width: 200px; height: 54px;" width="250" height="54" /></a>
 </div>
 
 </br>
