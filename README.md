@@ -69,6 +69,22 @@ Say goodbye to the complexities of internationalization with our AI-powered CLI 
 
 After finishing development, translation of content becomes a breeze with AI to take care of it all. With the added convenience of instant checks for corner cases such as right-to-left language or long words, you can rest easy knowing that your content is being handled with efficiency and care, leaving you with more time to focus on other important tasks
 
+Website that need to support multiple locales
+Startup that is building awesome products and you want to focus on things that matters
+Work on marketing materials
+You need localization of social media platforms
+You are running and e-commerce platform
+You want to add internalization for your software
+
+## Use cases:
+
+:white_check_mark: Building a website that supports multiple locales
+:white_check_mark: Working on marketing materials
+:white_check_mark: Localizing social media platforms
+:white_check_mark: Running an e-commerce platform
+:white_check_mark: Adding internationalization to software
+:x: Work for a multi-million dollar company that has a flow for managing translations.
+
 ### Maintainers
 
 - **Erik Olivero**: [@ekolivero](https://github.com/erik18xk)
