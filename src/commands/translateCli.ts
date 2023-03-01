@@ -30,7 +30,7 @@ export default command(
 
     intro("Missing translations found");
 
-    const missingTranslationsToGenerate = (await multiselect({
+    const missingTranslationsToGenerate = (await multiselect<any, string>({
       message: "Select missing translations you want to generate",
       initialValues: [],
       options: missingTranslations.map((missingTranslation) => ({
