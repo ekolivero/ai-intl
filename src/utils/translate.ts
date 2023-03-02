@@ -13,9 +13,6 @@ const sanitizeMessage = (message: string) =>
     .replace(/[\n\r]/g, "")
     .replace(/(\w)\.$/, "$1");
 
-const promptTemplate = (locale: string) => `
-  "Translate only the value of the key-value json file in input, the translated values must match ${locale} locale, if there are any job titles or industry-specific terms that need to be translated accurately please translate, the translations will be used for a ${locale} locale website, keep the same key of the json without translating it, then return the JSON\n":`;
-
 type TranslateProps = {
   file: string;
   locale: string;
