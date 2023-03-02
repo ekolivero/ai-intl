@@ -66,11 +66,11 @@ const callOpenAiAndParseResponse = async (
         },
         {
           role: "user",
-          content: `Translate the give JSON file in input to match the ${locale}`,
+          content: `Translate the given JSON file in input to match the ${locale}`,
         },
         {
           role: "assistant",
-          content: "The returned json will be used for a website in ${locale}",
+          content: `The returned json will be used for a website in ${locale}`,
         },
         {
           role: "assistant",
