@@ -42,38 +42,50 @@ const combineTranslations = (original: any, generated: any) => {
   return result;
 };
 
-const callOpenAiAndParseResponse = async (prompt: string): Promise<JSON> => {
+const callOpenAiAndParseResponse = async (
+  locale: string,
+  sanitizedJson: string
+): Promise<JSON> => {
   const { OPENAI_KEY: apiKey } = await getConfig();
   const OPENAI_KEY =
     process.env.OPENAI_KEY ?? process.env.OPENAI_API_KEY ?? apiKey;
 
   const openai = new OpenAIApi(new Configuration({ apiKey: OPENAI_KEY }));
 
-  if (prompt.length > 8000) {
-    throw new Error("The translations file is too large for the OpenAI API.");
-  }
+  // if (prompt.length > 8000) {
+  //   throw new Error("The translations file is too large for the OpenAI API.");
+  // }
 
   try {
-    const completion = await openai.createCompletion({
-      model: "text-davinci-003",
-      prompt,
-      temperature: 0.1,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-      max_tokens: 3000,
-      stream: false,
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional translator with proven experience",
+        },
+        {
+          role: "user",
+          content: `Translate the give JSON file in input to match the ${locale}`,
+        },
+        {
+          role: "assistant",
+          content: "The returned json will be used for a website in ${locale}",
+        },
+        {
+          role: "assistant",
+          content: "Translate only the value of the key-value json provieded",
+        },
+        {
+          role: "user",
+          content: `Here the json file to translate:\n${sanitizedJson}`,
+        },
+      ],
     });
-
-    if (!completion.data.choices[0].text) {
-      throw new Error(
-        "The OpenAI API returned no results. Please try again later."
-      );
-    }
 
     try {
       const generatedJson = JSON.parse(
-        completion.data.choices[0].text ?? "{}"
+        completion.data.choices[0].message?.content ?? "{}"
       ) as JSON;
       return generatedJson;
     } catch (error) {
@@ -97,7 +109,6 @@ export const translate = async ({
   locale,
   defaultLocale,
   task,
-  customPrompt,
 }: TranslateProps) => {
   return task(
     `Translating ${file.split("/").pop()}`,
@@ -127,12 +138,11 @@ export const translate = async ({
           return;
         }
 
-        const prompt = `${promptTemplate(locale)}\n${sanitizeMessage(
-          JSON.stringify(diff)
-        )}`;
+        const sanitizedJson = sanitizeMessage(JSON.stringify(diff));
 
         const diffGenerateTranslation = (await callOpenAiAndParseResponse(
-          prompt
+          locale,
+          sanitizedJson
         )) as any;
 
         generatedJson = combineTranslations(
@@ -140,14 +150,14 @@ export const translate = async ({
           diffGenerateTranslation
         );
       } else {
-        const prompt = customPrompt
-          ? `${customPrompt.replace("{locale}", locale)}\n${sanitizeMessage(
-              JSON.stringify(jsonFile)
-            )}`
-          : `${promptTemplate(locale)}\n${sanitizeMessage(
-              JSON.stringify(jsonFile)
-            )}`;
-        generatedJson = await callOpenAiAndParseResponse(prompt);
+        const sanitizedJson = sanitizeMessage(JSON.stringify(jsonFile));
+
+        const diffGenerateTranslation = (await callOpenAiAndParseResponse(
+          locale,
+          sanitizedJson
+        )) as any;
+
+        generatedJson = diffGenerateTranslation;
       }
 
       const isMatching = validateAllKeysMatch({
