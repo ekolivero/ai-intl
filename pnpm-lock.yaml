@@ -16,7 +16,7 @@ specifiers:
   ini: ^3.0.1
   json-diff: ^1.0.3
   kolorist: ^1.7.0
-  openai: ^3.1.0
+  openai: ^3.2.1
   pkgroll: ^1.9.0
   tasuku: ^2.0.1
   typescript: ^4.9.5
@@ -35,7 +35,7 @@ dependencies:
   ini: 3.0.1
   json-diff: 1.0.3
   kolorist: 1.7.0
-  openai: 3.1.0
+  openai: 3.2.1
   tasuku: 2.0.1
 
 devDependencies:
@@ -1889,8 +1889,8 @@ packages:
       mimic-fn: 4.0.0
     dev: false
 
-  /openai/3.1.0:
-    resolution: {integrity: sha512-v5kKFH5o+8ld+t0arudj833Mgm3GcgBnbyN9946bj6u7bvel4Yg6YFz2A4HLIYDzmMjIo0s6vSG9x73kOwvdCg==}
+  /openai/3.2.1:
+    resolution: {integrity: sha512-762C9BNlJPbjjlWZi4WYK9iM2tAVAv0uUp1UmI34vb0CN5T2mjB/qM6RYBmNKMh/dN9fC+bxqPwWJZUTWW052A==}
     dependencies:
       axios: 0.26.1
       form-data: 4.0.0
