@@ -11,6 +11,8 @@ import task from "tasuku";
 import { translate } from "./utils/translate.js";
 import { green } from "kolorist";
 import { execa } from "execa";
+import pkg from "fs-extra";
+const { pathExistsSync } = pkg;
 
 type StrcutMissingTranslations = {
   file: string;
@@ -21,6 +23,11 @@ export type Config = {
   translationsPath: string;
   defaultLocale: string;
   locales: string[];
+};
+
+type DiffStruct = {
+  files: string[];
+  diff: string;
 };
 
 cli(
@@ -47,8 +54,16 @@ cli(
       locales,
       translationsPath: defaultTranslationsPath,
     } = (await readConfigFile(aiIntlFileName)) as Config;
-    const pathToSearchDiff = `${defaultTranslationsPath}/${defaultLocale}`;
-    const stagedDiff = await getStagedDiff(pathToSearchDiff);
+
+    let stagedDiff: DiffStruct | undefined;
+
+    if (pathExistsSync(`{defaultTranslationsPath}/${defaultLocale}`)) {
+      const pathToSearchDiff = `${defaultTranslationsPath}/${defaultLocale}`;
+      stagedDiff = await getStagedDiff(pathToSearchDiff);
+    } else {
+      const pathToSearchDiff = defaultTranslationsPath;
+      stagedDiff = await getStagedDiff(pathToSearchDiff);
+    }
 
     if (!stagedDiff) {
       console.log(
