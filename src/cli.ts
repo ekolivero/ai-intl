@@ -65,8 +65,6 @@ cli(
       stagedDiff = await getStagedDiff(pathToSearchDiff);
     }
 
-    console.log(stagedDiff);
-
     if (!stagedDiff) {
       console.log(
         green("✔"),
