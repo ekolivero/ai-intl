@@ -57,13 +57,15 @@ cli(
 
     let stagedDiff: DiffStruct | undefined;
 
-    if (pathExistsSync(`{defaultTranslationsPath}/${defaultLocale}`)) {
+    if (pathExistsSync(`${defaultTranslationsPath}/${defaultLocale}`)) {
       const pathToSearchDiff = `${defaultTranslationsPath}/${defaultLocale}`;
       stagedDiff = await getStagedDiff(pathToSearchDiff);
     } else {
       const pathToSearchDiff = defaultTranslationsPath;
       stagedDiff = await getStagedDiff(pathToSearchDiff);
     }
+
+    console.log(stagedDiff);
 
     if (!stagedDiff) {
       console.log(
