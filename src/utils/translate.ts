@@ -41,7 +41,8 @@ const combineTranslations = (original: any, generated: any) => {
 
 const callOpenAiAndParseResponse = async (
   locale: string,
-  sanitizedJson: string
+  sanitizedJson: string,
+  defaultLocale: string
 ): Promise<JSON> => {
   const { OPENAI_KEY: apiKey } = await getConfig();
   const OPENAI_KEY =
@@ -49,9 +50,7 @@ const callOpenAiAndParseResponse = async (
 
   const openai = new OpenAIApi(new Configuration({ apiKey: OPENAI_KEY }));
 
-  // if (prompt.length > 8000) {
-  //   throw new Error("The translations file is too large for the OpenAI API.");
-  // }
+  const promptLocale = locale.toUpperCase();
 
   try {
     const completion = await openai.createChatCompletion({
@@ -59,23 +58,12 @@ const callOpenAiAndParseResponse = async (
       messages: [
         {
           role: "system",
-          content: "You are a professional translator with proven experience",
-        },
-        {
-          role: "user",
-          content: `Translate the given JSON file in input to match the ${locale}`,
-        },
-        {
-          role: "assistant",
-          content: `The returned json will be used for a website in ${locale}`,
-        },
-        {
-          role: "assistant",
-          content: "Translate only the value of the key-value json provieded",
-        },
-        {
-          role: "user",
-          content: `Here the json file to translate:\n${sanitizedJson}`,
+          content: `You are a helpful assistant that is helping the developer to rollout the website to a new country: ${promptLocale}, the developer has provided you the original JSON file that you need to translate, pay attention to the following rules:
+          1. The key of the JSON file should not be changed
+          2. The value of the JSON file should be translated to ${promptLocale} market
+          3. The original JSON file is for the ${defaultLocale} market, cities, states, etc. should be translated to ${promptLocale} market
+          4. The original JSON file is for the ${defaultLocale} market, the currency should be translated to ${promptLocale} market
+          Remember, you are a ${promptLocale} native speaker, you need to translate the original JSON file to make sense for ${promptLocale} market, the original JSON file is: ${sanitizedJson}, return only the translated JSON file`,
         },
       ],
     });
@@ -139,7 +127,8 @@ export const translate = async ({
 
         const diffGenerateTranslation = (await callOpenAiAndParseResponse(
           locale,
-          sanitizedJson
+          sanitizedJson,
+          defaultLocale
         )) as any;
 
         generatedJson = combineTranslations(
@@ -151,7 +140,8 @@ export const translate = async ({
 
         const diffGenerateTranslation = (await callOpenAiAndParseResponse(
           locale,
-          sanitizedJson
+          sanitizedJson,
+          defaultLocale
         )) as any;
 
         generatedJson = diffGenerateTranslation;
