@@ -23,17 +23,14 @@ type TranslateProps = {
 
 const combineTranslations = (original: any, generated: any) => {
   const result = {} as any;
-  let keys = [
-    ...new Set([...Object.keys(original), ...Object.keys(generated)]),
-  ];
+  let keys = [...new Set([...Object.keys(original), ...Object.keys(generated)])];
   for (let k of keys) {
     if (original[k] && generated[k] && typeof original[k] === "object") {
       result[k] = combineTranslations(original[k], generated[k]);
     } else if (original[k] === generated[k]) {
       result[k] = original[k];
     } else {
-      result[k] =
-        original[k] && generated[k] ? "" : original[k] || generated[k];
+      result[k] = original[k] && generated[k] ? "" : original[k] || generated[k];
     }
   }
   return result;
@@ -44,9 +41,8 @@ const callOpenAiAndParseResponse = async (
   sanitizedJson: string,
   defaultLocale: string
 ): Promise<JSON> => {
-  const { OPENAI_KEY: apiKey } = await getConfig();
-  const OPENAI_KEY =
-    process.env.OPENAI_KEY ?? process.env.OPENAI_API_KEY ?? apiKey;
+  const { OPENAI_KEY: apiKey, MODEL: model } = await getConfig();
+  const OPENAI_KEY = process.env.OPENAI_KEY ?? process.env.OPENAI_API_KEY ?? apiKey;
 
   const openai = new OpenAIApi(new Configuration({ apiKey: OPENAI_KEY }));
 
@@ -54,7 +50,7 @@ const callOpenAiAndParseResponse = async (
 
   try {
     const completion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+      model: model || "gpt-3.5-turbo-16k",
       messages: [
         {
           role: "system",
@@ -69,9 +65,7 @@ const callOpenAiAndParseResponse = async (
     });
 
     try {
-      const generatedJson = JSON.parse(
-        completion.data.choices[0].message?.content ?? "{}"
-      ) as JSON;
+      const generatedJson = JSON.parse(completion.data.choices[0].message?.content ?? "{}") as JSON;
       return generatedJson;
     } catch (error) {
       throw new Error("The OpenAI API returned invalid JSON.");
@@ -89,84 +83,59 @@ const callOpenAiAndParseResponse = async (
   }
 };
 
-export const translate = async ({
-  file,
-  locale,
-  defaultLocale,
-  task,
-}: TranslateProps) => {
-  return task(
-    `Translating ${file.split("/").pop()}`,
-    async ({ setTitle, setStatus }) => {
-      const fileName = file.split("/").pop();
-      setTitle(`Preparing translation for ${fileName}...`);
+export const translate = async ({ file, locale, defaultLocale, task }: TranslateProps) => {
+  return task(`Translating ${file.split("/").pop()}`, async ({ setTitle, setStatus }) => {
+    const fileName = file.split("/").pop();
+    setTitle(`Preparing translation for ${fileName}...`);
 
-      const jsonFile = loadJson(file) as JSON;
+    const jsonFile = loadJson(file) as JSON;
 
-      const translationExists = await fileExists(
-        file?.replace(defaultLocale, locale) ?? ""
-      );
+    const translationExists = await fileExists(file?.replace(defaultLocale, locale) ?? "");
 
-      let generatedJson: JSON = {} as JSON;
+    let generatedJson: JSON = {} as JSON;
 
-      if (translationExists) {
-        const translationFile = loadJson(
-          file?.replace(defaultLocale, locale) ?? ""
-        ) as any;
+    if (translationExists) {
+      const translationFile = loadJson(file?.replace(defaultLocale, locale) ?? "") as any;
 
-        const diff = getDiff({
-          originalJson: jsonFile,
-          generatedJson: translationFile,
-        });
-
-        if (!diff) {
-          return;
-        }
-
-        const sanitizedJson = sanitizeMessage(JSON.stringify(diff));
-
-        const diffGenerateTranslation = (await callOpenAiAndParseResponse(
-          locale,
-          sanitizedJson,
-          defaultLocale
-        )) as any;
-
-        generatedJson = combineTranslations(
-          translationFile,
-          diffGenerateTranslation
-        );
-      } else {
-        const sanitizedJson = sanitizeMessage(JSON.stringify(jsonFile));
-
-        const diffGenerateTranslation = (await callOpenAiAndParseResponse(
-          locale,
-          sanitizedJson,
-          defaultLocale
-        )) as any;
-
-        generatedJson = diffGenerateTranslation;
-      }
-
-      const isMatching = validateAllKeysMatch({
-        generatedJson,
+      const diff = getDiff({
         originalJson: jsonFile,
+        generatedJson: translationFile,
       });
 
-      if (!isMatching) {
-        throw new Error(
-          `The generated translation for ${fileName} doesn't match the original one.`
-        );
+      if (!diff) {
+        return;
       }
 
-      setTitle(`Storing translation for ${fileName}...`);
-      await outputJson(file.replace(defaultLocale, locale), generatedJson, {
-        spaces: 2,
-      });
+      const sanitizedJson = sanitizeMessage(JSON.stringify(diff));
 
-      setTitle(`Successfully stored translation for ${fileName}...`);
-      setStatus("success");
+      const diffGenerateTranslation = (await callOpenAiAndParseResponse(locale, sanitizedJson, defaultLocale)) as any;
 
-      return "Success";
+      generatedJson = combineTranslations(translationFile, diffGenerateTranslation);
+    } else {
+      const sanitizedJson = sanitizeMessage(JSON.stringify(jsonFile));
+
+      const diffGenerateTranslation = (await callOpenAiAndParseResponse(locale, sanitizedJson, defaultLocale)) as any;
+
+      generatedJson = diffGenerateTranslation;
     }
-  );
+
+    const isMatching = validateAllKeysMatch({
+      generatedJson,
+      originalJson: jsonFile,
+    });
+
+    if (!isMatching) {
+      throw new Error(`The generated translation for ${fileName} doesn't match the original one.`);
+    }
+
+    setTitle(`Storing translation for ${fileName}...`);
+    await outputJson(file.replace(defaultLocale, locale), generatedJson, {
+      spaces: 2,
+    });
+
+    setTitle(`Successfully stored translation for ${fileName}...`);
+    setStatus("success");
+
+    return "Success";
+  });
 };
