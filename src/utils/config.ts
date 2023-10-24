@@ -23,6 +23,9 @@ const configParsers = {
 
     return key;
   },
+  MODEL(key: string) {
+    return key;
+  },
   generate(key: string) {
     parseAssert("generate", key, "Cannot be empty");
     parseAssert("generate", /^\d+$/.test(key), "Must be an integer");
@@ -59,8 +62,7 @@ export const getConfig = async (): Promise<ConfigType> => {
 };
 
 const { hasOwnProperty } = Object.prototype;
-const hasOwn = (object: unknown, key: PropertyKey) =>
-  hasOwnProperty.call(object, key);
+const hasOwn = (object: unknown, key: PropertyKey) => hasOwnProperty.call(object, key);
 
 export const setConfigs = async (keyValues: [key: string, value: string][]) => {
   const config = await getConfig();
