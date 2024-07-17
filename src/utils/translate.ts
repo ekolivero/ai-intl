@@ -10,34 +10,37 @@ import dedent from "dedent";
 
 const { outputJson } = fsExtra;
 
-const containsPlaceholders = (str: string) => /\{.*?\}/.test(str);
+const containsPlaceholders = (str: string) => /\{\{\s*\w+\s*\}\}/.test(str);
 
-function createTranslationSchema(englishTranslations: Record<string, string>) {
-  const schemaShape: Record<string, z.ZodType<string>> = {};
+function createTranslationSchema(
+  englishTranslations: Record<string, any>
+): z.ZodType<any> {
+  const schemaShape: Record<string, z.ZodType<any>> = {};
 
   for (const [key, value] of Object.entries(englishTranslations)) {
-    const baseSchema = z.string({
-      description: value,
-    });
-
-    if (containsPlaceholders(value)) {
-      schemaShape[key] = baseSchema.refine((val) => containsPlaceholders(val), {
-        message: `The '${key}' translation must contain placeholders matching the original: "${value}"`,
+    if (typeof value === "string") {
+      const baseSchema = z.string({
+        description: value,
       });
-    } else {
-      schemaShape[key] = baseSchema;
+
+      if (containsPlaceholders(value)) {
+        schemaShape[key] = baseSchema.refine(
+          (val) => containsPlaceholders(val),
+          {
+            message: `The '${key}' translation must contain placeholders matching the original: "${value}"`,
+          }
+        );
+      } else {
+        schemaShape[key] = baseSchema;
+      }
+    } else if (typeof value === "object" && value !== null) {
+      // Recursively create schema for nested objects
+      schemaShape[key] = createTranslationSchema(value);
     }
   }
 
   return z.object(schemaShape);
 }
-
-
-const sanitizeMessage = (message: string) =>
-  message
-    .trim()
-    .replace(/[\n\r]/g, "")
-    .replace(/(\w)\.$/, "$1");
 
 type TranslateProps = {
   file: string;
@@ -64,7 +67,7 @@ const combineTranslations = (original: any, generated: any) => {
 
 const callOpenAiAndParseResponse = async (
   locale: string,
-  sanitizedJson: string,
+  translations: any,
   defaultLocale: string,
   customPromt: string,
 ): Promise<any> => {
@@ -75,11 +78,7 @@ const callOpenAiAndParseResponse = async (
     apiKey: OPENAI_KEY,
   });
 
-  console.log(customPromt)
-
-  const promptLocale = locale.toUpperCase();
-
-  const zodSchema = createTranslationSchema(JSON.parse(sanitizedJson));
+  const zodSchema = createTranslationSchema(translations);
   
   const { object } = await generateObject({
     model: openai("gpt-4o"),
@@ -89,11 +88,9 @@ const callOpenAiAndParseResponse = async (
     `,
     prompt: dedent`
       ${customPromt}
-      Always the following JSON schema to ${promptLocale}.
+      Always translate the JSON schema to the following locale: ${locale}.
     `,
   });
-
-  console.log(object)
 
   return object
 };
@@ -125,15 +122,12 @@ export const translate = async ({ file, locale, defaultLocale, task }: Translate
         return;
       }
 
-      const sanitizedJson = sanitizeMessage(JSON.stringify(diff));
-
-      const diffGenerateTranslation = (await callOpenAiAndParseResponse(locale, sanitizedJson, defaultLocale, customPrompt)) as any;
+      const diffGenerateTranslation = (await callOpenAiAndParseResponse(locale, diff, defaultLocale, customPrompt)) as any;
 
       generatedJson = combineTranslations(translationFile, diffGenerateTranslation);
     } else {
-      const sanitizedJson = sanitizeMessage(JSON.stringify(jsonFile));
 
-      const diffGenerateTranslation = (await callOpenAiAndParseResponse(locale, sanitizedJson, defaultLocale, customPrompt)) as any;
+      const diffGenerateTranslation = (await callOpenAiAndParseResponse(locale, jsonFile, defaultLocale, customPrompt)) as any;
 
       generatedJson = diffGenerateTranslation;
     }

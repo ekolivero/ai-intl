@@ -1,8 +1,16 @@
 {
-  "title": "There are currently {offers} offers available in the United States",
-  "statePlaceholder": "Enter state",
-  "countryPlaceholder": "Enter country",
-  "regionPlaceholder": "Enter region",
-  "zipCodePlaceholder": "Enter zip code",
-  "topCities": "Top cities: Eg: New York, Los Angeles, Chicago"
+  "searchForm": {
+    "keyword": "Profession, Company, Keyword",
+    "location": "City, State",
+    "what": "What",
+    "where": "Where",
+    "errorMessage": "You need to insert a keyword or a location to launch a search",
+    "title": "Top offers in the United States",
+    "topCities": "Top cities, eg: Cicago, New York, Los Angeles"
+  },
+  "extraSeoContent": {
+    "roleDescriptionTitle": "Finding a job for {{ role }}",
+    "topEmployersInLocationForKeyword": "Top employers in {{ location }} for {{ keyword }}",
+    "topEmployersForKeyword": "Top employers for {{ keyword }}"
+  }
 }
