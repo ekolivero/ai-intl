@@ -1,0 +1,7 @@
+{
+  "name": "Nome",
+  "surname": "Cognome",
+  "click": "Ricevuti {clicks} click",
+  "longText": "Questo è un testo molto lungo e vorrei sperimentare su come dovrebbe funzionare questa traduzione per avere tutto in funzione",
+  "crawler": "L'ultima volta che abbiamo eseguito il dataset era {date} e abbiamo indicizzato {number} case"
+}

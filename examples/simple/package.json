@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "test": "node ../../dist/cli.mjs translate && rm -rf ./i18n/locales/it"
+  }
+}

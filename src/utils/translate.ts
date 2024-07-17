@@ -1,11 +1,37 @@
 import { Task } from "tasuku";
 import fsExtra from "fs-extra";
-import { Configuration, OpenAIApi } from "openai";
 import { getConfig } from "./config.js";
 import { getDiff, validateAllKeysMatch } from "./diff.js";
-import { fileExists, loadJson } from "./fs.js";
+import { fileExists, loadJson, loadMarkdown } from "./fs.js";
+import { z } from "zod";
+import { generateObject } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+import dedent from "dedent";
 
 const { outputJson } = fsExtra;
+
+const containsPlaceholders = (str: string) => /\{.*?\}/.test(str);
+
+function createTranslationSchema(englishTranslations: Record<string, string>) {
+  const schemaShape: Record<string, z.ZodType<string>> = {};
+
+  for (const [key, value] of Object.entries(englishTranslations)) {
+    const baseSchema = z.string({
+      description: value,
+    });
+
+    if (containsPlaceholders(value)) {
+      schemaShape[key] = baseSchema.refine((val) => containsPlaceholders(val), {
+        message: `The '${key}' translation must contain placeholders matching the original: "${value}"`,
+      });
+    } else {
+      schemaShape[key] = baseSchema;
+    }
+  }
+
+  return z.object(schemaShape);
+}
+
 
 const sanitizeMessage = (message: string) =>
   message
@@ -39,54 +65,47 @@ const combineTranslations = (original: any, generated: any) => {
 const callOpenAiAndParseResponse = async (
   locale: string,
   sanitizedJson: string,
-  defaultLocale: string
-): Promise<JSON> => {
+  defaultLocale: string,
+  customPromt: string,
+): Promise<any> => {
   const { OPENAI_KEY: apiKey, MODEL: model } = await getConfig();
   const OPENAI_KEY = process.env.OPENAI_KEY ?? process.env.OPENAI_API_KEY ?? apiKey;
 
-  const openai = new OpenAIApi(new Configuration({ apiKey: OPENAI_KEY }));
+  const openai = createOpenAI({
+    apiKey: OPENAI_KEY,
+  });
+
+  console.log(customPromt)
 
   const promptLocale = locale.toUpperCase();
 
-  try {
-    const completion = await openai.createChatCompletion({
-      model: model || "gpt-3.5-turbo-16k",
-      messages: [
-        {
-          role: "system",
-          content: `You are a helpful assistant that is helping the developer to rollout the website to a new country: ${promptLocale}, the developer has provided you the original JSON file that you need to translate, pay attention to the following rules:
-          1. The key of the JSON file should not be changed
-          2. The value of the JSON file should be translated to ${promptLocale} market
-          3. The original JSON file is for the ${defaultLocale} market, cities, states, etc. should be translated to ${promptLocale} market
-          4. The original JSON file is for the ${defaultLocale} market, the currency should be translated to ${promptLocale} market
-          Remember, you are a ${promptLocale} native speaker, you need to translate the original JSON file to make sense for ${promptLocale} market, the original JSON file is: ${sanitizedJson}, return only the translated JSON file`,
-        },
-      ],
-    });
+  const zodSchema = createTranslationSchema(JSON.parse(sanitizedJson));
+  
+  const { object } = await generateObject({
+    model: openai("gpt-4o"),
+    schema: zodSchema,
+    system: dedent`
+      Pay extra attention to the placeholders.
+    `,
+    prompt: dedent`
+      ${customPromt}
+      Always the following JSON schema to ${promptLocale}.
+    `,
+  });
 
-    try {
-      const generatedJson = JSON.parse(completion.data.choices[0].message?.content ?? "{}") as JSON;
-      return generatedJson;
-    } catch (error) {
-      throw new Error("The OpenAI API returned invalid JSON.");
-    }
-  } catch (error) {
-    const errorAsAny = error as any;
-    if (errorAsAny.code === "ENOTFOUND") {
-      throw new Error(
-        `Error connecting to ${errorAsAny.hostname} (${errorAsAny.syscall}). Are you connected to the internet?`
-      );
-    }
+  console.log(object)
 
-    errorAsAny.message = `OpenAI API Error: ${errorAsAny.message} - ${errorAsAny.response.statusText}`;
-    throw errorAsAny;
-  }
+  return object
 };
 
 export const translate = async ({ file, locale, defaultLocale, task }: TranslateProps) => {
   return task(`Translating ${file.split("/").pop()}`, async ({ setTitle, setStatus }) => {
     const fileName = file.split("/").pop();
     setTitle(`Preparing translation for ${fileName}...`);
+
+    const promptExists = await fileExists(file.replace(".json", ".md"))
+
+    const customPrompt = promptExists ? await loadMarkdown(file.replace(".json", ".md")) : "";
 
     const jsonFile = loadJson(file) as JSON;
 
@@ -108,13 +127,13 @@ export const translate = async ({ file, locale, defaultLocale, task }: Translate
 
       const sanitizedJson = sanitizeMessage(JSON.stringify(diff));
 
-      const diffGenerateTranslation = (await callOpenAiAndParseResponse(locale, sanitizedJson, defaultLocale)) as any;
+      const diffGenerateTranslation = (await callOpenAiAndParseResponse(locale, sanitizedJson, defaultLocale, customPrompt)) as any;
 
       generatedJson = combineTranslations(translationFile, diffGenerateTranslation);
     } else {
       const sanitizedJson = sanitizeMessage(JSON.stringify(jsonFile));
 
-      const diffGenerateTranslation = (await callOpenAiAndParseResponse(locale, sanitizedJson, defaultLocale)) as any;
+      const diffGenerateTranslation = (await callOpenAiAndParseResponse(locale, sanitizedJson, defaultLocale, customPrompt)) as any;
 
       generatedJson = diffGenerateTranslation;
     }

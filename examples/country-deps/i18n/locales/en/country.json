@@ -1,0 +1,8 @@
+{
+  "title": "There are currently {offers} offers available in the United States",
+  "statePlaceholder": "Enter state",
+  "countryPlaceholder": "Enter country",
+  "regionPlaceholder": "Enter region",
+  "zipCodePlaceholder": "Enter zip code",
+  "topCities": "Top cities: Eg: New York, Los Angeles, Chicago"
+}

@@ -34,6 +34,16 @@ export const loadJson = (filePath: string) => {
   return require(path.resolve(filePath));
 };
 
+export const loadMarkdown = async (filePath: string): Promise<string> => {
+  const fullPath = path.resolve(filePath);
+  try {
+    const content = await fs.readFile(fullPath, "utf8");
+    return content;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const findNewTranslationsFile = async () => {
   const { defaultLocale, locales, translationsPath } = (await readConfigFile(
     aiIntlFileName

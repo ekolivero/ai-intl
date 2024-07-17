@@ -1,0 +1,5 @@
+{
+  "translationsPath": "./i18n/locales/",
+  "defaultLocale": "en",
+  "locales": ["it", "fr", "uk"]
+}
