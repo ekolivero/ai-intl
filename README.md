@@ -62,7 +62,17 @@ Say goodbye to the complexities of internationalization with our AI-powered CLI 
 
 - CLI that generate for you translations on demand. Run <code>ai-intl translate</code> and it will translate the content for you.
 - If enabled, the pre-commit hook 🚀 will check for translation changes in your default locale and adapt all other translations for each pull request.
-- Custom prompts, you can customize your translations by using a _custom_ propmt, just type <code>ai-intl translate --prompt "your prompt" </code>
+- When needed you can customize the prompt using <code>.md file </code> at the same level of your default translation
+   ```md
+   i18n/locales
+   ├── en
+   │   ├── common.json
+   │   ├── common.md # write here your custom prompt
+   │   ├── admin.json
+   │   ├── serp.json
+   ├── it
+   ├── fr
+   ```
 
 ## Issues
 
